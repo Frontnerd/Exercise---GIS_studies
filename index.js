@@ -1,24 +1,31 @@
-var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+var map = L.map('map')
 
-console.log( mymap );
 
 L.tileLayer('https://api.mapbox.com/styles/v1/anselmo21/cipzlyluk0019d2kmopw6aom7/tiles/256/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
     maxZoom: 18,
     id: 'Dark',
     accessToken: 'pk.eyJ1IjoiYW5zZWxtbzIxIiwiYSI6ImNpcHpsdnVweDAwYjlpNG0ycjU0ZnVidzEifQ.V7K2vNq83jiqf6oABlyKfA'
-}).addTo(mymap);
+}).addTo(map);
+
+map.locate({setView: true, maxZoom: 16});
 
 
-var marker = L.marker([51.5, -0.09]).addTo(mymap);
+// on location success
+function onLocationFound(e) {
+    var radius = e.accuracy / 2;
 
-var popup = L.popup();
+    L.marker(e.latlng).addTo(map)
+        .bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-function onMapClick(e) {
-    popup
-        .setLatLng(e.latlng)
-        .setContent("You clicked the map at " + e.latlng.toString())
-        .openOn(mymap);
+    L.circle(e.latlng, radius).addTo(map);
 }
 
-mymap.on('click', onMapClick);
+map.on('locationfound', onLocationFound);
+
+// on location error
+function onLocationError(e) {
+    alert(e.message);
+}
+
+map.on('locationerror', onLocationError);
