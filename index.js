@@ -56,10 +56,10 @@ L.geoJson(lenguas_Indigena_MX).addTo(map);
 
 // Get Population density colors
 function style(feature) {
-  //console.log(feature)
+  console.log(feature)
   return {
-    fillColor: getColor(rgb[feature]),
-    weight: 1,
+    fillColor: getColor(rgb[feature.properties.COV_]),
+    weight: .1,
     opacity: 1,
     color: 'white',
     fillOpacity: 0.7
@@ -129,9 +129,7 @@ info.onAdd = function (map) {
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
   this._div.innerHTML = '<h4>Mexico Indigenous Languages, 1990</h4>' +  (props ?
-      '<br />State: <b>' + props.NOM_ENT + '</b>'+
-      '<br />Municipal: <b>' + props.NOM_MUN + '</b>'+
-      '<br />Language: <b>' + props.LENGUA1 + '</b>'
+      'Language: <b>' + props.LENGUA1 + '</b>'
       : 'Hover over a state');
 };
 
