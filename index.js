@@ -1,9 +1,9 @@
 // Create Map
-var map = L.map('map').setView([37.8, -96], 4);
+var map = L.map('map').setView([25, -99], 5);
 
 var nightMap = 'cipzlyluk0019d2kmopw6aom7';
 var physicMap = 'cipzsryl60010q7ndqx1qezth';
-var mapBoxLink = 'https://api.mapbox.com/styles/v1/anselmo21/'+physicMap+'/tiles/256/{z}/{x}/{y}?access_token={accessToken}';
+var mapBoxLink = 'https://api.mapbox.com/styles/v1/anselmo21/'+nightMap+'/tiles/256/{z}/{x}/{y}?access_token={accessToken}';
 var attribution = 'info@frontnerd.com';
 
 L.tileLayer(mapBoxLink, {
@@ -13,26 +13,55 @@ L.tileLayer(mapBoxLink, {
 }).addTo(map);
 
 // Loading Data from geojson file
-L.geoJson(statesData).addTo(map);
+L.geoJson(lenguas_Indigena_MX).addTo(map);
 
-function getColor(d) {
-  return d > 1000 ? '#800026' :
-         d > 500  ? '#BD0026' :
-         d > 200  ? '#E31A1C' :
-         d > 100  ? '#FC4E2A' :
-         d > 50   ? '#FD8D3C' :
-         d > 20   ? '#FEB24C' :
-         d > 10   ? '#FED976' :
-                    '#FFEDA0';
-}
+
+
+
+
+  //console.log(feature.properties.LENGUA1)
+
+  // get all languages
+
+  var Languages = [];
+
+	lenguas_Indigena_MX[0].features.forEach(function(item){
+		Languages.push(item.properties.LENGUA1);
+	})
+	
+  // remote double items
+	uniqueArray = Languages.filter(function(item, pos, self) {
+		return self.indexOf(item) == pos;
+	})
+	
+	//console.log(uniqueArray.length)
+
+	// create random colors	
+	var rgb = [];
+
+	for(var i = 0; i < uniqueArray.length; i++){
+		rgb.push(Math.floor(Math.random() * 255));
+	}
+
+	//console.log(rgb);
+
+	function getColor(d) {
+		//return d > 10 ? 'red' : 'transparent';
+		return 'hsl('+ d +', 100%, 50%)';
+	}
+
+
+
+
+
 // Get Population density colors
 function style(feature) {
+  //console.log(feature)
   return {
-    fillColor: getColor(feature.properties.density),
-    weight: 2,
+    fillColor: getColor(rgb[feature]),
+    weight: 1,
     opacity: 1,
     color: 'white',
-    dashArray: '3',
     fillOpacity: 0.7
   };
 }
@@ -45,10 +74,10 @@ function highlightFeature(e) {
     var layer = e.target;
 
     layer.setStyle({
-      weight: 2,
-      color: '#00f',
+      weight: .1,
+      color: 'lime',
       dashArray: '',
-      fillOpacity: 0.7
+      fillOpacity: 1
     });
 
     if (!L.Browser.ie && !L.Browser.opera) {
@@ -83,11 +112,10 @@ function onEachFeature(feature, layer) {
 }
 
 //
-geojson = L.geoJson(statesData, {
+geojson = L.geoJson(lenguas_Indigena_MX, {
     style: style,
-    onEachFeature: onEachFeature
+    onEachFeature: onEachFeature,
 }).addTo(map);
-
 
 // Info box
 var info = L.control();
@@ -100,8 +128,10 @@ info.onAdd = function (map) {
 
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
-  this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-      '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+  this._div.innerHTML = '<h4>Mexico Indigenous Languages, 1990</h4>' +  (props ?
+      '<br />State: <b>' + props.NOM_ENT + '</b>'+
+      '<br />Municipal: <b>' + props.NOM_MUN + '</b>'+
+      '<br />Language: <b>' + props.LENGUA1 + '</b>'
       : 'Hover over a state');
 };
 
@@ -109,18 +139,18 @@ info.addTo(map);
 
 
 // Create Legend
-var legend = L.control({position: 'bottomright'});
+var legend = L.control({position: 'bottomleft'});
 
 legend.onAdd = function (map) {
-
+    
     var div = L.DomUtil.create('div', 'info legend'),
-        grades = [0, 10, 20, 50, 100, 200, 500, 1000],
+        grades = uniqueArray,
         labels = [];
 
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length; i++) {
         div.innerHTML +=
-            '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+            '<i style="background:' + getColor(rgb[i]) + '"></i> ' +
             grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
     }
 
@@ -130,36 +160,8 @@ legend.onAdd = function (map) {
 legend.addTo(map);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Debug position
+/////////////////////////////////////////////////////////////////////
 function onMapClick(e) {
   console.log("You clicked the map at " + e.latlng);
 }
