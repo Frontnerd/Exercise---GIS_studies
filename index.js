@@ -13,154 +13,39 @@ L.tileLayer(mapBoxLink, {
 }).addTo(map);
 
 // Loading Data from geojson file
-L.geoJson(lenguas_Indigena_MX).addTo(map);
+//L.geoJson(lenguas_Indigena_MX).addTo(map);
 
 
 
-
-
-  //console.log(feature.properties.LENGUA1)
-
-  // get all languages
-
-  var Languages = [];
-
-	lenguas_Indigena_MX[0].features.forEach(function(item){
-		Languages.push(item.properties.LENGUA1);
-	})
-	
-  // remote double items
-	uniqueArray = Languages.filter(function(item, pos, self) {
-		return self.indexOf(item) == pos;
-	})
-	
-	//console.log(uniqueArray.length)
-
-	// create random colors	
-	var rgb = [];
-
-	for(var i = 0; i < uniqueArray.length; i++){
-		rgb.push(Math.floor(Math.random() * 255));
-	}
-
-	//console.log(rgb);
-
-	function getColor(d) {
-		//return d > 10 ? 'red' : 'transparent';
-		return 'hsl('+ d +', 100%, 50%)';
-	}
-
-
-
-
-
-// Get Population density colors
-function style(feature) {
-  console.log(feature)
-  return {
-    fillColor: getColor(rgb[feature.properties.COV_]),
-    weight: .1,
-    opacity: 1,
-    color: 'white',
-    fillOpacity: 0.7
-  };
-}
-
-var geojson;
-
-
-// Show "onmouseover" country border and update info box
-function highlightFeature(e) {
-    var layer = e.target;
-
-    layer.setStyle({
-      weight: .1,
-      color: 'lime',
-      dashArray: '',
-      fillOpacity: 1
-    });
-
-    if (!L.Browser.ie && !L.Browser.opera) {
-      layer.bringToFront();
+function style(LENGUA){
+  console.log(LENGUA)
+  if(LENGUA.properties.LENGUA1 == 'MAYA'){
+    return {
+      fillColor: 'lime',//getColor(feature.properties.density),
+      weight: 0,
+      opacity: 1,
+      color: 'red',
+      fillOpacity: 0.5
     }
-    // info
-    info.update(layer.feature.properties);
+  } else {
+    return {
+      fillColor: 'blue',//getColor(feature.properties.density),
+      weight: 0,
+      opacity: 1,
+      color: 'black',
+      fillOpacity: 0.1
+    } 
+  }
 }
 
 
-// And "mouseout" style reset and info box
-function resetHighlight(e) {
-  geojson.resetStyle(e.target);
-  // info
-  info.update();
-}
 
+console.log(lenguas_Indigena_MX)
 
-// Zoom to state on "click"
-function zoomToFeature(e) {
-  map.fitBounds(e.target.getBounds());
-}
-
-
-// Events
-function onEachFeature(feature, layer) {
-  layer.on({
-    mouseover: highlightFeature,
-    mouseout: resetHighlight,
-    click: zoomToFeature
-  });
-}
-
-//
-geojson = L.geoJson(lenguas_Indigena_MX, {
-    style: style,
-    onEachFeature: onEachFeature,
+L.geoJson(lenguas_Indigena_MX, {
+  style: style,
 }).addTo(map);
 
-// Info box
-var info = L.control();
-
-info.onAdd = function (map) {
-  this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-  this.update();
-  return this._div;
-};
-
-// method that we will use to update the control based on feature properties passed
-info.update = function (props) {
-  this._div.innerHTML = '<h4>Mexico Indigenous Languages, 1990</h4>' +  (props ?
-      'Language: <b>' + props.LENGUA1 + '</b>'
-      : 'Hover over a state');
-};
-
-info.addTo(map);
 
 
-// Create Legend
-var legend = L.control({position: 'bottomleft'});
 
-legend.onAdd = function (map) {
-    
-    var div = L.DomUtil.create('div', 'info legend'),
-        grades = uniqueArray,
-        labels = [];
-
-    // loop through our density intervals and generate a label with a colored square for each interval
-    for (var i = 0; i < grades.length; i++) {
-        div.innerHTML +=
-            '<i style="background:' + getColor(rgb[i]) + '"></i> ' +
-            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-    }
-
-    return div;
-};
-
-legend.addTo(map);
-
-
-// Debug position
-/////////////////////////////////////////////////////////////////////
-function onMapClick(e) {
-  console.log("You clicked the map at " + e.latlng);
-}
-map.on('click', onMapClick);
