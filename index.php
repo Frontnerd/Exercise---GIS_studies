@@ -19,7 +19,7 @@
         echo "<script src='$script'></script>\n";
       }
     ?>
-    <script src="lenguas_Indigena_MX__test.js"></script>
+    <script src="lenguas_Indigena_MX__test2.js"></script>
     
     <script src="index.js"></script>
     
